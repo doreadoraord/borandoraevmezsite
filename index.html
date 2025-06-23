@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Boran Dora Evmez</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg-color: #0a0a0a;
+      --text-color: #00ff00;
+      --box-color: #004d00;
+      --accent: #00ff99;
+      --shadow: 0 8px 32px 0 rgba(0,255,0,0.15);
+      --card-radius: 22px;
+      --transition: 0.5s cubic-bezier(.4,2,.6,1);
+    }
+    body.day {
+      --bg-color: #f7f7f7;
+      --text-color: #003300;
+      --box-color: #ccffcc;
+      --accent: #009966;
+      --shadow: 0 8px 32px 0 rgba(0,153,102,0.10);
+    }
+    body {
+      margin: 0;
+      font-family: 'Rubik', sans-serif;
+      background: linear-gradient(135deg, var(--bg-color) 60%, var(--accent) 100%);
+      color: var(--text-color);
+      min-height: 100vh;
+      transition: background 0.7s cubic-bezier(.4,2,.6,1), color 0.5s;
+      overflow-x: hidden;
+    }
+    .header-bar {
+      width: 100vw;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      padding-top: 40px;
+      padding-bottom: 10px;
+      z-index: 10;
+    }
+    .main-title {
+      font-size: 2.7em;
+      letter-spacing: 2px;
+      font-weight: 900;
+      color: var(--accent);
+      text-shadow: 0 2px 12px rgba(0,255,0,0.10);
+      margin: 0;
+      text-align: center;
+      flex: 1;
+      animation: fadeInDown 1s;
+    }
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-40px);}
+      to { opacity: 1; transform: translateY(0);}
+    }
+    .mode-toggle {
+      position: absolute;
+      left: 30px;
+      top: 50%;
+      transform: translateY(-50%);
+      padding: 10px 15px;
+      border: none;
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--box-color) 80%, var(--accent) 100%);
+      color: var(--text-color);
+      font-weight: bold;
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      font-size: 1.1em;
+      z-index: 1002;
+      transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
+    }
+    .mode-toggle:hover {
+      background: var(--accent);
+      color: #fff;
+      transform: translateY(-50%) scale(1.08);
+      box-shadow: 0 4px 24px 0 rgba(0,255,0,0.18);
+    }
+    .top-right-buttons {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1003;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+    .lang-toggle, .menu-toggle {
+      padding: 10px 15px;
+      border: none;
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--box-color) 80%, var(--accent) 100%);
+      color: var(--text-color);
+      font-weight: bold;
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      font-size: 1.1em;
+      z-index: 1002;
+      transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
+    }
+    .lang-toggle:hover, .menu-toggle:hover {
+      background: var(--accent);
+      color: #fff;
+      transform: scale(1.05);
+      box-shadow: 0 4px 24px 0 rgba(0,255,0,0.18);
+    }
+    .lang-label {
+      font-size: 0.95em;
+      font-weight: bold;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 6px;
+      padding: 2px 8px;
+      margin-left: 6px;
+      letter-spacing: 1px;
+      box-shadow: 0 2px 8px 0 rgba(0,255,0,0.10);
+    }
+    .sidebar {
+      position: fixed;
+      right: -270px;
+      top: 0;
+      width: 250px;
+      height: 100%;
+      background: linear-gradient(135deg, var(--box-color) 80%, var(--accent) 100%);
+      transition: right 0.4s cubic-bezier(.4,2,.6,1);
+      padding-top: 80px;
+      box-shadow: -4px 0 24px 0 rgba(0,0,0,0.10);
+      z-index: 1001;
+    }
+    .sidebar.open { right: 0; }
+    .sidebar a {
+      display: block;
+      padding: 18px 30px;
+      color: var(--text-color);
+      text-decoration: none;
+      font-size: 1.1em;
+      font-weight: 500;
+      border-bottom: 1px solid rgba(0,255,0,0.08);
+      transition: background 0.2s, color 0.2s, padding-left 0.2s;
+    }
+    .sidebar a:hover {
+      background: var(--accent);
+      color: #fff;
+      padding-left: 40px;
+    }
+    .card {
+      background: linear-gradient(135deg, var(--box-color) 80%, var(--accent) 100%);
+      padding: 28px 28px 24px 28px;
+      margin: 30px auto 0 auto;
+      border-radius: var(--card-radius);
+      box-shadow: var(--shadow);
+      max-width: 700px;
+      position: relative;
+      border: 1.5px solid var(--accent);
+      opacity: 0.98;
+      animation: cardPop 0.7s cubic-bezier(.4,2,.6,1);
+      transition: box-shadow 0.3s, transform 0.2s;
+    }
+    @keyframes cardPop {
+      from { opacity: 0; transform: scale(0.95) translateY(60px);}
+      to { opacity: 1; transform: scale(1) translateY(0);}
+    }
+    .card:hover {
+      box-shadow: 0 8px 40px 0 rgba(0,255,0,0.18);
+      transform: translateY(-4px) scale(1.01);
+    }
+    .about-flex {
+      display: flex;
+      align-items: flex-start;
+      gap: 32px;
+      flex-wrap: wrap;
+    }
+    .about-photo {
+      width: 130px;
+      height: 130px;
+      object-fit: cover;
+      border-radius: 50%;
+      box-shadow: 0 2px 12px 0 rgba(0,255,0,0.13);
+      flex-shrink: 0;
+      margin-bottom: 10px;
+      animation: fadeInLeft 1s;
+    }
+    @keyframes fadeInLeft {
+      from { opacity: 0; transform: translateX(-40px);}
+      to { opacity: 1; transform: translateX(0);}
+    }
+    .about-text {
+      flex: 1;
+      min-width: 220px;
+      animation: fadeInRight 1s;
+    }
+    @keyframes fadeInRight {
+      from { opacity: 0; transform: translateX(40px);}
+      to { opacity: 1; transform: translateX(0);}
+    }
+    .skills-card, .hobbies-card {
+      background: linear-gradient(135deg, #006622 80%, var(--accent) 100%);
+      color: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px 0 rgba(0,255,0,0.10);
+      margin: 18px 0 0 0;
+      padding: 18px 24px 14px 24px;
+      font-size: 1.08em;
+      animation: fadeInUp 1s;
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(40px);}
+      to { opacity: 1; transform: translateY(0);}
+    }
+    .skills-card ul, .hobbies-card ul {
+      margin: 10px 0 0 0;
+      padding-left: 20px;
+    }
+    .skills-card li, .hobbies-card li {
+      margin-bottom: 6px;
+      line-height: 1.5;
+    }
+    #githubProjects {
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      animation: fadeIn 1.2s;
+    }
+    #githubProjects a {
+      color: var(--accent);
+      font-weight: bold;
+      text-decoration: none;
+      font-size: 1.13em;
+      transition: color 0.2s;
+    }
+    #githubProjects a:hover {
+      color: #fff;
+      text-shadow: 0 2px 8px var(--accent);
+    }
+    .gallery {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-top: 18px;
+      justify-content: center;
+      animation: fadeIn 1.2s;
+    }
+    .gallery img {
+      width: 120px;
+      margin: 0;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px 0 rgba(0,255,0,0.10);
+      transition: transform 0.2s, box-shadow 0.2s;
+      background: #fff;
+      border: 2px solid var(--accent);
+      animation: certPop 0.8s;
+    }
+    @keyframes certPop {
+      from { opacity: 0; transform: scale(0.8);}
+      to { opacity: 1; transform: scale(1);}
+    }
+    .gallery img:hover {
+      transform: scale(1.08) rotate(2deg);
+      box-shadow: 0 4px 16px 0 rgba(0,255,0,0.13);
+      border-color: #fff;
+    }
+    .social-icons {
+      display: flex;
+      gap: 18px;
+      margin-top: 10px;
+      justify-content: center;
+      animation: fadeIn 1.2s;
+    }
+    .social-icons img {
+      width: 44px;
+      margin-right: 0;
+      cursor: pointer;
+      border-radius: 50%;
+      box-shadow: 0 2px 8px 0 rgba(0,255,0,0.10);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .social-icons img:hover {
+      transform: scale(1.13) rotate(-6deg);
+      box-shadow: 0 4px 16px 0 rgba(0,255,0,0.18);
+    }
+    @media (max-width: 900px) {
+      .card { max-width: 98vw; padding: 16px;}
+      .about-flex { flex-direction: column; align-items: center;}
+      .about-photo { margin-bottom: 0;}
+      .about-text { text-align: center;}
+    }
+    @media (max-width: 700px) {
+      .sidebar { width: 90vw; right: -90vw;}
+      .sidebar.open { right: 0;}
+      .header-bar { padding-top: 20px;}
+      .main-title { font-size: 1.5em;}
+      .mode-toggle { left: 10px;}
+    }
+    .section { display: none; padding: 0; min-height: 0;}
+    .section.active { display: block;}
+    #modalOverlayBlocker {
+      display: none;
+      position: fixed;
+      z-index: 1999;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.35);
+      pointer-events: all;
+    }
+  </style>
+</head>
+<body>
+  <div class="header-bar">
+    <div style="display:flex;flex-direction:column;align-items:flex-start;gap:8px;position:absolute;left:10px;top:20px;z-index:1004;">
+      <div style="display:flex;gap:8px;">
+        <button id="loginBtn" onclick="showLogin()" style="padding:7px 14px;border-radius:7px;border:none;background:var(--accent);color:#fff;font-weight:bold;cursor:pointer;order:1;" data-tr="Giriş Yap" data-en="Login" data-de="Anmelden" data-ru="Войти">Giriş Yap</button>
+        <button id="registerBtn" onclick="showRegister()" style="padding:7px 14px;border-radius:7px;border:none;background:var(--accent);color:#fff;font-weight:bold;cursor:pointer;order:2;" data-tr="Kaydol" data-en="Register" data-de="Registrieren" data-ru="Регистрация">Kaydol</button>
+        <button id="logoutBtn" onclick="logoutUser()" style="padding:7px 14px;border-radius:7px;border:none;background:#e74c3c;color:#fff;font-weight:bold;cursor:pointer;display:none;order:3;" data-tr="Çıkış Yap" data-en="Logout" data-de="Abmelden" data-ru="Выйти">Çıkış Yap</button>
+      </div>
+      <button class="mode-toggle" onclick="toggleMode()" id="modeToggleBtn" style="margin-top:10px;margin-left:50px;" data-tr="🌗" data-en="🌗" data-de="🌗" data-ru="🌗">🌗</button>
+      <button class="lang-toggle" onclick="toggleLang()" style="margin-top:10px;">
+        🌐 <span class="lang-label" id="langLabel">TR</span>
+      </button>
+    </div>
+    <button class="menu-toggle" onclick="toggleMenu()" style="position:absolute;right:20px;top:20px;z-index:1005;">☰ Menü</button>
+    <h1 class="main-title" data-tr="Boran Dora Evmez" data-en="Boran Dora Evmez" data-de="Boran Dora Evmez" data-ru="Боран Дора Евмез">Boran Dora Evmez</h1>
+  </div>
+  <div id="modalOverlayBlocker"></div>
+  <div id="registerModal" style="display:none;position:fixed;z-index:2000;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.7);align-items:center;justify-content:center;">
+    <div style="background:#fff;color:#222;padding:32px 28px 24px 28px;border-radius:18px;box-shadow:0 8px 32px 0 rgba(0,0,0,0.18);max-width:350px;width:90vw;animation:cardPop 0.7s cubic-bezier(.4,2,.6,1);">
+      <h2 data-tr="Kayıt Ol" data-en="Register" data-de="Registrieren" data-ru="Регистрация">Kayıt Ol</h2>
+      <input id="regName" type="text" placeholder="İsim" style="width:100%;margin-bottom:10px;padding:8px;border-radius:8px;border:1px solid #ccc;"/>
+      <input id="regSurname" type="text" placeholder="Soyisim" style="width:100%;margin-bottom:10px;padding:8px;border-radius:8px;border:1px solid #ccc;"/>
+      <input id="regMail" type="email" placeholder="Mail" style="width:100%;margin-bottom:10px;padding:8px;border-radius:8px;border:1px solid #ccc;"/>
+      <input id="regPass" type="password" placeholder="Şifre" style="width:100%;margin-bottom:10px;padding:8px;border-radius:8px;border:1px solid #ccc;"/>
+      <button onclick="registerUser()" style="width:100%;margin-bottom:10px;">Kayıt Ol</button>
+      <div id="registerSuccess" style="color:green;display:none;margin-bottom:10px;">Kayıt başarılı! Giriş yapılıyor...</div>
+      <div style="margin-top:10px;text-align:center;">
+        <span data-tr="Zaten hesabınız var mı?" data-en="Already have an account?" data-de="Schon ein Konto?" data-ru="Уже есть аккаунт?">Zaten hesabınız var mı?</span>
+        <a href="#" onclick="showLogin()" style="color:var(--accent);font-weight:bold;">Giriş Yap</a>
+      </div>
+    </div>
+  </div>
+  <div id="loginModal" style="display:none;position:fixed;z-index:2000;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.7);align-items:center;justify-content:center;">
+    <div style="background:#fff;color:#222;padding:32px 28px 24px 28px;border-radius:18px;box-shadow:0 8px 32px 0 rgba(0,0,0,0.18);max-width:350px;width:90vw;animation:cardPop 0.7s cubic-bezier(.4,2,.6,1);">
+      <h2 data-tr="Giriş Yap" data-en="Login" data-de="Anmelden" data-ru="Войти">Giriş Yap</h2>
+      <input id="loginMail" type="text" placeholder="Mail veya Admin Adı" style="width:100%;margin-bottom:10px;padding:8px;border-radius:8px;border:1px solid #ccc;"/>
+      <input id="loginPass" type="password" placeholder="Şifre" style="width:100%;margin-bottom:10px;padding:8px;border-radius:8px;border:1px solid #ccc;"/>
+      <button onclick="loginUser()" style="width:100%;margin-bottom:10px;">Giriş Yap</button>
+      <div id="loginError" style="color:red;display:none;margin-bottom:10px;">Hatalı giriş!</div>
+      <div style="margin-top:10px;text-align:center;">
+        <span data-tr="Hesabınız yok mu?" data-en="No account?" data-de="Kein Konto?" data-ru="Нет аккаунта?">Hesabınız yok mu?</span>
+        <a href="#" onclick="showRegister()" style="color:var(--accent);font-weight:bold;">Kayıt Ol</a>
+      </div>
+    </div>
+  </div>
+  <div class="sidebar" id="sidebar">
+    <a href="#" onclick="showSection('hakkimda')" data-tr="Hakkımda" data-en="About Me" data-de="Über mich" data-ru="Обо мне">Hakkımda</a>
+    <a href="#" onclick="showSection('genel')" data-tr="Genel Bilgiler" data-en="General Info" data-de="Allgemeine Infos" data-ru="Общая информация">Genel Bilgiler</a>
+    <a href="#" onclick="showSection('projeler')" data-tr="Projeler" data-en="Projects" data-de="Projekte" data-ru="Проекты">Projeler</a>
+    <a href="#" onclick="showSection('isdeneyim')" data-tr="İş Deneyimleri" data-en="Work Experience" data-de="Berufserfahrung" data-ru="Опыт работы">İş Deneyimleri</a>
+    <a href="#" onclick="showSection('sertifikalar')" data-tr="Sertifikalar" data-en="Certificates" data-de="Zertifikate" data-ru="Сертификаты">Sertifikalar</a>
+    <a href="#" onclick="showSection('iletisim')" data-tr="İletişim" data-en="Contact" data-de="Kontakt" data-ru="Контакты">İletişim</a>
+    <a id="suggestionBtn" href="#" onclick="showSection('sikayet')" style="display:none;" data-tr="Öneri & Şikayetler" data-en="Suggestions & Complaints" data-de="Vorschläge & Beschwerden" data-ru="Предложения и жалобы">Öneri & Şikayetler</a>
+    <a id="adminPanelBtn" href="#" onclick="showSection('adminpanel')" style="display:none;" data-tr="Veri Tabanı" data-en="Database" data-de="Datenbank" data-ru="База данных">Veri Tabanı</a>
+    <a id="adminMessagesBtn" href="#" onclick="showSection('adminmessages')" style="display:none;" data-tr="Gelen Mesajlar" data-en="Incoming Messages" data-de="Eingehende Nachrichten" data-ru="Входящие сообщения">Gelen Mesajlar</a>
+  </div>
+  <div id="hakkimda" class="section active">
+    <div class="card" style="margin-top:30px;">
+      <div class="about-flex">
+        <img src="profil.jpg.jfif" alt="Boran Dora Evmez" class="about-photo">
+        <div class="about-text">
+          <h2 data-tr="Hakkımda" data-en="About Me" data-de="Über mich" data-ru="Обо мне">Hakkımda</h2>
+          <p data-tr="Merhaba! Ben Boran Dora Evmez. Erzincan Binali Yıldırım Üniversitesi Bilgisayar Mühendisliği 4. sınıf öğrencisiyim ve yazılım geliştirme, web tasarımı, proje üretimi, Frontend, Mobil uygulamalar ve daha birçok yazılım geliştirme yöntemi ile ilgileniyorum."
+             data-en="Hello! I'm Boran Dora Evmez. I am a senior Computer Engineering student at Erzincan Binali Yıldırım University. I am interested in software development, web design, project creation, frontend, mobile applications and many other software development methods."
+             data-de="Hallo! Ich bin Boran Dora Evmez. Ich bin im 4. Jahr des Informatikstudiums an der Erzincan Binali Yıldırım Universität und interessiere mich für Softwareentwicklung, Webdesign, Projektentwicklung, Frontend, mobile Anwendungen und viele weitere Softwareentwicklungsmethoden."
+             data-ru="Привет! Я Боран Дора Евмез. Я студент 4 курса факультета компьютерной инженерии Университета Эрзинджан Бинали Йылдырым. Я интересуюсь разработкой программного обеспечения, веб-дизайном, созданием проектов, фронтендом, мобильными приложениями и многими другими методами разработки ПО.">
+            Merhaba! Ben Boran Dora Evmez. Erzincan Binali Yıldırım Üniversitesi Bilgisayar Mühendisliği 4. sınıf öğrencisiyim ve yazılım geliştirme, web tasarımı, proje üretimi, Frontend, Mobil uygulamalar ve daha birçok yazılım geliştirme yöntemi ile ilgileniyorum.
+          </p>
+        </div>
+      </div>
+      <div class="skills-card">
+        <strong data-tr="Yeteneklerim:" data-en="My Skills:" data-de="Meine Fähigkeiten:" data-ru="Мои навыки:">Yeteneklerim:</strong>
+        <ul>
+          <li data-tr="Analitik düşünme kabiliyetine sahip olmak," data-en="Having analytical thinking skills," data-de="Analytisches Denkvermögen besitzen," data-ru="Обладать аналитическим мышлением,">Analitik düşünme kabiliyetine sahip olmak,</li>
+          <li data-tr="Detay odaklı çalışmak ve uzun süre konsantrasyon sağlayabilmek," data-en="Being detail-oriented and able to maintain concentration for long periods," data-de="Detailorientiert arbeiten und lange konzentriert bleiben können," data-ru="Быть внимательным к деталям и способным долго концентрироваться,">Detay odaklı çalışmak ve uzun süre konsantrasyon sağlayabilmek,</li>
+          <li data-tr="Yaratıcılık ve eleştirel düşünce yapısına sahip olmak," data-en="Having creativity and critical thinking," data-de="Kreativität und kritisches Denken besitzen," data-ru="Обладать креативностью и критическим мышлением,">Yaratıcılık ve eleştirel düşünce yapısına sahip olmak,</li>
+          <li data-tr="Ekip çalışmasına yatkınlık göstermek," data-en="Being prone to teamwork," data-de="Teamfähigkeit zeigen," data-ru="Быть склонным к командной работе,">Ekip çalışmasına yatkınlık göstermek,</li>
+          <li data-tr="Mesleki yenilikleri öğrenmeye istekli olmak," data-en="Being eager to learn professional innovations," data-de="Bereit sein, berufliche Neuerungen zu lernen," data-ru="Быть готовым изучать профессиональные новшества,">Mesleki yenilikleri öğrenmeye istekli olmak,</li>
+          <li data-tr="Mevcut teknoloji ve test araçlarını kullanarak düzenli donanım testleri gerçekleştirmek," data-en="Performing regular hardware tests using current technology and test tools," data-de="Regelmäßige Hardwaretests mit aktueller Technologie und Testwerkzeugen durchführen," data-ru="Проводить регулярные аппаратные тесты с использованием современных технологий и инструментов,">Mevcut teknoloji ve test araçlarını kullanarak düzenli donanım testleri gerçekleştirmek,</li>
+          <li data-tr="Yeni ve yeniden yapılandırılmış anakartlar için doğrulama testi gerçekleştirmek," data-en="Performing validation tests for new and restructured motherboards," data-de="Validierungstests für neue und umstrukturierte Motherboards durchführen," data-ru="Проводить валидационные тесты для новых и реконструированных материнских плат,">Yeni ve yeniden yapılandırılmış anakartlar için doğrulama testi gerçekleştirmek,</li>
+          <li data-tr="Düzenli bakım faaliyetleri gerçekleştirmek ve bilgisayar donanımı sorunlarını gidermek," data-en="Performing regular maintenance activities and troubleshooting computer hardware issues," data-de="Regelmäßige Wartungsarbeiten durchführen und Computerhardware-Probleme beheben," data-ru="Проводить регулярное обслуживание и устранять проблемы с компьютерным оборудованием,">Düzenli bakım faaliyetleri gerçekleştirmek ve bilgisayar donanımı sorunlarını gidermek,</li>
+          <li data-tr="Mevcut bilgisayar ekipmanını güncellemek ve yeni teknolojiyi eski ekipmanlara entegre etmek," data-en="Updating existing computer equipment and integrating new technology into old equipment," data-de="Vorhandene Computerausrüstung aktualisieren und neue Technologie in alte Geräte integrieren," data-ru="Обновлять существующее компьютерное оборудование и интегрировать новые технологии в старое оборудование,">Mevcut bilgisayar ekipmanını güncellemek ve yeni teknolojiyi eski ekipmanlara entegre etmek,</li>
+          <li data-tr="Yeni mobil uygulamalar oluşturmak için yazılım geliştirme ekibi ile işbirliği içerisinde çalışmak," data-en="Collaborating with the software development team to create new mobile applications," data-de="Mit dem Softwareentwicklungsteam zusammenarbeiten, um neue mobile Anwendungen zu erstellen," data-ru="Сотрудничать с командой разработчиков для создания новых мобильных приложений,">Yeni mobil uygulamalar oluşturmak için yazılım geliştirme ekibi ile işbirliği içerisinde çalışmak,</li>
+          <li data-tr="Dahili ağ fonksiyonları ve herhangi bir internet özellikli uygulama kullanımı için yönetici personeline teknik destek sağlamak," data-en="Providing technical support to administrative staff for internal network functions and any internet-enabled application usage," data-de="Technischen Support für das Verwaltungspersonal bei internen Netzwerkfunktionen und der Nutzung internetfähiger Anwendungen bieten," data-ru="Оказывать техническую поддержку административному персоналу по внутренним сетевым функциям и использованию любых интернет-приложений,">Dahili ağ fonksiyonları ve herhangi bir internet özellikli uygulama kullanımı için yönetici personeline teknik destek sağlamak,</li>
+          <li data-tr="Potansiyel bilgisayar korsanlık tehditlerinden korunmasını sağlamak için şirketin bulut depolama hesaplarını kontrol etmek," data-en="Controlling the company's cloud storage accounts to protect against potential hacking threats," data-de="Die Cloud-Speicherkonten des Unternehmens kontrollieren, um sich vor potenziellen Hackerbedrohungen zu schützen," data-ru="Контролировать облачные хранилища компании для защиты от потенциальных угроз взлома,">Potansiyel bilgisayar korsanlık tehditlerinden korunmasını sağlamak için şirketin bulut depolama hesaplarını kontrol etmek,</li>
+          <li data-tr="İhtiyaçları öngörmek ve gerektiğinde yedek donanım ekipmanını tedarik etmek." data-en="Anticipating needs and procuring backup hardware equipment when necessary." data-de="Bedarfe voraussehen und bei Bedarf Ersatzhardware beschaffen." data-ru="Предвидеть потребности и при необходимости обеспечивать запасное оборудование.">İhtiyaçları öngörmek ve gerektiğinde yedek donanım ekipmanını tedarik etmek.</li>
+        </ul>
+      </div>
+      <div class="hobbies-card">
+        <strong data-tr="Hobilerim:" data-en="My Hobbies:" data-de="Meine Hobbys:" data-ru="Мои хобби:">Hobilerim:</strong>
+        <ul>
+          <li data-tr="Güncel gelişmeleri takip etmek" data-en="Following current developments" data-de="Aktuelle Entwicklungen verfolgen" data-ru="Следить за современными тенденциями">Güncel gelişmeleri takip etmek</li>
+          <li data-tr="Güzel sanatlarla ilgilenmek" data-en="Being interested in fine arts" data-de="Sich für schöne Künste interessieren" data-ru="Интересоваться изобразительным искусством">Güzel sanatlarla ilgilenmek</li>
+          <li data-tr="Enstrüman çalmak" data-en="Playing instruments" data-de="Instrumente spielen" data-ru="Играть на музыкальных инструментах">Enstrüman çalmak</li>
+          <li data-tr="Yeni teknolojik gelişmeleri takip etmek" data-en="Following new technological developments" data-de="Neue technologische Entwicklungen verfolgen" data-ru="Следить за новыми технологическими разработками">Yeni teknolojik gelişmeleri takip etmek</li>
+          <li data-tr="Kendi imkanlarımla robot projeleri gerçekleştirmek" data-en="Building robot projects with my own means" data-de="Roboterprojekte mit eigenen Mitteln umsetzen" data-ru="Реализовывать робототехнические проекты своими силами">Kendi imkanlarımla robot projeleri gerçekleştirmek</li>
+          <li data-tr="Günümüzün basit ihtiyaçlarını sanal ortamda çözmek" data-en="Solving today's simple needs in a virtual environment" data-de="Heutige einfache Bedürfnisse virtuell lösen" data-ru="Решать простые современные задачи в виртуальной среде">Günümüzün basit ihtiyaçlarını sanal ortamda çözmek</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div id="genel" class="section">
+    <div class="card">
+      <h2>Genel Bilgiler</h2>
+      <ul>
+        <li><strong>Fakülte:</strong> Mühendislik-Mimarlık Fakültesi</li>
+        <li><strong>Bölüm:</strong> Bilgisayar Mühendisliği</li>
+        <li><strong>Anabilim Dalı:</strong> Bilgisayar Yazılımı</li>
+        <li><strong>Temel Alan:</strong> Mühendislik Temel Alanı</li>
+        <li><strong>Bilim Alanı:</strong> Bilgisayar Bilimleri</li>
+        <li><strong>Anahtar Kelimeler:</strong> Programlama, Yapay Zeka, Veri Madenciliği</li>
+      </ul>
+    </div>
+  </div>
+  <div id="projeler" class="section">
+    <div class="card">
+      <h2>Yapılan Projeler</h2>
+      <div id="githubProjects">
+        <p>GitHub projeleri yükleniyor...</p>
+      </div>
+    </div>
+  </div>
+  <div id="sertifikalar" class="section">
+    <div class="card">
+      <h2 data-tr="Sertifikalar" data-en="Certificates" data-de="Zertifikate" data-ru="Сертификаты">Sertifikalar</h2>
+      <div id="adminCertUpload" style="display:none;margin-bottom:18px;">
+        <input type="file" id="certFileInput" accept="image/png" style="margin-bottom:8px;"/>
+        <button onclick="uploadCertificate()" data-tr="Sertifika Yükle" data-en="Upload Certificate" data-de="Zertifikat hochladen" data-ru="Загрузить сертификат">Sertifika Yükle</button>
+      </div>
+      <div class="gallery" id="gallery">
+        <!-- Sertifikalar burada gösterilecek -->
+      </div>
+    </div>
+  </div>
+  <div id="iletisim" class="section">
+    <div class="card">
+      <h2>İletişim Bilgileri</h2>
+      <div class="social-icons">
+        <a href="https://www.instagram.com/doraevmez" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram" title="Instagram"></a>
+        <a href="https://www.linkedin.com/in/boran-dora-evmez-666b4a356/" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/145/145807.png" alt="LinkedIn" title="LinkedIn"></a>
+        <a href="https://github.com/doreadoraord" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/733/733609.png" alt="GitHub" title="GitHub"></a>
+        <a href="mailto:borandora@gmail.com"><img src="https://cdn-icons-png.flaticon.com/512/732/732200.png" alt="Mail" title="Mail"></a>
+      </div>
+    </div>
+  </div>
+  <div id="isdeneyim" class="section">
+    <div class="card skills-card" style="margin-left:auto;margin-right:auto;float:none;">
+      <h2 data-tr="İş Geçmişi" data-en="Work History" data-de="Berufserfahrung" data-ru="Опыт работы">İş Geçmişi</h2>
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;background:rgba(0,77,0,0.95);color:#fff;border-radius:12px;">
+          <thead>
+            <tr style="background:var(--accent);color:#fff;">
+              <th data-tr="İş Yeri" data-en="Workplace" data-de="Arbeitsplatz" data-ru="Место работы">İş Yeri</th>
+              <th data-tr="İş Türü" data-en="Type" data-de="Art" data-ru="Тип">İş Türü</th>
+              <th data-tr="Çalışılan Gün" data-en="Days" data-de="Tage" data-ru="Дней">Çalışılan Gün</th>
+              <th data-tr="Giriş Tarihi" data-en="Start Date" data-de="Eintrittsdatum" data-ru="Дата входа">Giriş Tarihi</th>
+              <th data-tr="Çıkış Tarihi" data-en="End Date" data-de="Austrittsdatum" data-ru="Дата выхода">Çıkış Tarihi</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Şölen Çikolata Gıda Sanayi A.Ş.</td>
+              <td data-tr="Staj" data-en="Internship" data-de="Praktikum" data-ru="Стажировка">Staj</td>
+              <td>40 iş günü</td>
+              <td>01.07.2025</td>
+              <td>29.08.2025</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div id="adminpanel" class="section">
+    <div class="card skills-card">
+      <h2 data-tr="Kullanıcı Veritabanı" data-en="User Database" data-de="Benutzerdatenbank" data-ru="База пользователей">Kullanıcı Veritabanı</h2>
+      <div style="overflow-x:auto;">
+        <table id="userTable" style="width:100%;border-collapse:collapse;background:rgba(0,77,0,0.95);color:#fff;border-radius:12px;">
+          <thead>
+            <tr style="background:var(--accent);color:#fff;">
+              <th data-tr="İsim" data-en="Name" data-de="Name" data-ru="Имя">İsim</th>
+              <th data-tr="Soyisim" data-en="Surname" data-de="Nachname" data-ru="Фамилия">Soyisim</th>
+              <th data-tr="Mail" data-en="Mail" data-de="Mail" data-ru="Почта">Mail</th>
+            </tr>
+          </thead>
+          <tbody id="userTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div id="sikayet" class="section">
+    <div class="card">
+      <h2 data-tr="Öneri & Şikayetler" data-en="Suggestions & Complaints" data-de="Vorschläge & Beschwerden" data-ru="Предложения и жалобы">Öneri & Şikayetler</h2>
+      <textarea id="suggestionInput" maxlength="500" rows="5" style="width:100%;margin-bottom:10px;" data-tr="Mesajınızı buraya yazın..." data-en="Write your message here..." data-de="Schreiben Sie Ihre Nachricht hier..." data-ru="Напишите ваше сообщение здесь..."> </textarea>
+      <button onclick="sendSuggestion()" data-tr="Gönder" data-en="Send" data-de="Senden" data-ru="Отправить">Gönder</button>
+      <div id="suggestionSuccess" style="color:green;display:none;margin-top:10px;" data-tr="Mesajınız iletildi!" data-en="Your message has been sent!" data-de="Ihre Nachricht wurde gesendet!" data-ru="Ваше сообщение отправлено!">Mesajınız iletildi!</div>
+    </div>
+  </div>
+  <div id="adminmessages" class="section">
+    <div class="card">
+      <h2 data-tr="Gelen Mesajlar" data-en="Incoming Messages" data-de="Eingehende Nachrichten" data-ru="Входящие сообщения">Gelen Mesajlar</h2>
+      <div id="adminMessagesList"></div>
+    </div>
+  </div>
+  <script>
+    let currentLang = 'tr';
+    const langMap = { tr: 'TR', en: 'EN', de: 'DE', ru: 'RU' };
+    function toggleMenu() {
+      document.getElementById('sidebar').classList.toggle('open');
+    }
+    function showSection(id) {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      document.getElementById('sidebar').classList.remove('open');
+      if (id === 'adminmessages') showAdminMessages();
+      if (id === 'sertifikalar') showCertificates();
+    }
+    function toggleMode() {
+      document.body.classList.toggle('day');
+    }
+    function updateLang() {
+      document.getElementById('langLabel').textContent = langMap[currentLang];
+      document.querySelectorAll('[data-tr]').forEach(el => {
+        if (el.dataset[currentLang]) el.textContent = el.dataset[currentLang];
+      });
+      document.querySelectorAll('[data-placeholder-tr]').forEach(el => {
+        if (el.dataset['placeholder'+currentLang]) el.placeholder = el.dataset['placeholder'+currentLang];
+      });
+      document.querySelectorAll('.sidebar a').forEach(el => {
+        if (el.hasAttribute('data-tr') && el.dataset[currentLang]) el.textContent = el.dataset[currentLang];
+      });
+      document.getElementById('loginBtn').textContent = document.getElementById('loginBtn').getAttribute('data-'+currentLang) || {
+        tr:'Giriş Yap',en:'Login',de:'Anmelden',ru:'Войти'
+      }[currentLang];
+      document.getElementById('registerBtn').textContent = document.getElementById('registerBtn').getAttribute('data-'+currentLang) || {
+        tr:'Kaydol',en:'Register',de:'Registrieren',ru:'Регистрация'
+      }[currentLang];
+      document.getElementById('logoutBtn').textContent = document.getElementById('logoutBtn').getAttribute('data-'+currentLang) || {
+        tr:'Çıkış Yap',en:'Logout',de:'Abmelden',ru:'Выйти'
+      }[currentLang];
+    }
+    function toggleLang() {
+      const langs = ['tr', 'en', 'de', 'ru'];
+      const next = langs[(langs.indexOf(currentLang) + 1) % langs.length];
+      currentLang = next;
+      updateLang();
+    }
+    function blockPageInteractions(block) {
+      const overlay = document.getElementById('modalOverlayBlocker');
+      if (block) {
+        overlay.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+      } else {
+        overlay.style.display = 'none';
+        document.body.style.overflow = '';
+      }
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+      updateLang();
+      if (!localStorage.getItem('loggedIn')) {
+        document.getElementById('registerModal').style.display = 'flex';
+        document.getElementById('logoutBtn').style.display = 'none';
+        blockPageInteractions(true);
+      } else {
+        document.getElementById('logoutBtn').style.display = '';
+        blockPageInteractions(false);
+      }
+      if (localStorage.getItem('isAdmin') === 'true') {
+        document.getElementById('adminPanelBtn').style.display = '';
+      }
+      showCertificates();
+      updateMenuForRole();
+    });
+    function showRegister() {
+      document.getElementById('loginModal').style.display = 'none';
+      document.getElementById('registerModal').style.display = 'flex';
+      blockPageInteractions(true);
+    }
+    function showLogin() {
+      document.getElementById('registerModal').style.display = 'none';
+      document.getElementById('loginModal').style.display = 'flex';
+      blockPageInteractions(true);
+    }
+    function logoutUser() {
+      localStorage.removeItem('loggedIn');
+      localStorage.removeItem('isAdmin');
+      document.getElementById('logoutBtn').style.display = 'none';
+      showLogin();
+      blockPageInteractions(true);
+    }
+    function registerUser() {
+      const name = document.getElementById('regName').value.trim();
+      const surname = document.getElementById('regSurname').value.trim();
+      const mail = document.getElementById('regMail').value.trim();
+      const pass = document.getElementById('regPass').value;
+      if (!name || !surname || !mail || !pass) return;
+      let users = JSON.parse(localStorage.getItem('users') || '[]');
+      users.push({name, surname, mail, pass});
+      localStorage.setItem('users', JSON.stringify(users));
+      document.getElementById('registerSuccess').style.display = 'block';
+      setTimeout(() => {
+        document.getElementById('registerModal').style.display = 'none';
+        localStorage.setItem('loggedIn', 'true');
+        localStorage.setItem('isAdmin', 'false');
+        document.getElementById('logoutBtn').style.display = '';
+        blockPageInteractions(false);
+        location.reload();
+      }, 1200);
+    }
+    function loginUser() {
+      const mail = document.getElementById('loginMail').value.trim();
+      const pass = document.getElementById('loginPass').value;
+      if (mail === 'admin' && pass === 'Borandora2452') {
+        localStorage.setItem('loggedIn', 'true');
+        localStorage.setItem('isAdmin', 'true');
+        document.getElementById('loginError').style.display = 'none';
+        document.getElementById('loginModal').style.display = 'none';
+        document.getElementById('adminPanelBtn').style.display = '';
+        document.getElementById('logoutBtn').style.display = '';
+        showSection('adminpanel');
+        fillUserTable();
+        blockPageInteractions(false);
+        return;
+      }
+      let users = JSON.parse(localStorage.getItem('users') || '[]');
+      const user = users.find(u => (u.mail === mail) && u.pass === pass);
+      if (user) {
+        localStorage.setItem('loggedIn', 'true');
+        localStorage.setItem('isAdmin', 'false');
+        document.getElementById('loginError').style.display = 'none';
+        document.getElementById('loginModal').style.display = 'none';
+        document.getElementById('logoutBtn').style.display = '';
+        blockPageInteractions(false);
+        location.reload();
+      } else {
+        document.getElementById('loginError').style.display = 'block';
+      }
+    }
+    function fillUserTable() {
+      let users = JSON.parse(localStorage.getItem('users') || '[]');
+      let tbody = document.getElementById('userTableBody');
+      tbody.innerHTML = '';
+      users.forEach(u => {
+        let tr = document.createElement('tr');
+        tr.innerHTML = `<td>${u.name}</td><td>${u.surname}</td><td>${u.mail}</td>`;
+        tbody.appendChild(tr);
+      });
+    }
+    fetch('https://api.github.com/users/doreadoraord/repos')
+      .then(response => response.json())
+      .then(data => {
+        const githubProjects = document.getElementById('githubProjects');
+        githubProjects.innerHTML = '';
+        if (data.length === 0) {
+          githubProjects.innerHTML = '<p>Henüz proje yok.</p>';
+        } else {
+          data.forEach(repo => {
+            const div = document.createElement('div');
+            div.innerHTML = `<a href="${repo.html_url}" target="_blank" style="color:var(--accent);font-weight:bold;text-decoration:none;font-size:1.1em;">${repo.name}</a><br><span style="font-size:0.98em;color:var(--text-color);">${repo.description ? repo.description : ''}</span>`;
+            githubProjects.appendChild(div);
+          });
+        }
+      })
+      .catch(() => {
+        document.getElementById('githubProjects').innerHTML = '<p>Projeler yüklenemedi.</p>';
+      });
+    function uploadCertificate() {
+      const input = document.getElementById('certFileInput');
+      if (input.files.length === 0) return;
+      const file = input.files[0];
+      if (file.type !== 'image/png') return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        let certs = JSON.parse(localStorage.getItem('certificates') || '[]');
+        certs.push(e.target.result);
+        localStorage.setItem('certificates', JSON.stringify(certs));
+        showCertificates();
+      };
+      reader.readAsDataURL(file);
+    }
+    function showCertificates() {
+      const gallery = document.getElementById('gallery');
+      gallery.innerHTML = '';
+      let certs = JSON.parse(localStorage.getItem('certificates') || '[]');
+      // Varsayılan github sertifikaları
+      const defaultCerts = [
+        "https://raw.githubusercontent.com/doreadoraord/BoranDoraEvmez/main/a.png",
+        "https://raw.githubusercontent.com/doreadoraord/BoranDoraEvmez/main/b.png",
+        "https://raw.githubusercontent.com/doreadoraord/BoranDoraEvmez/main/c.png",
+        "https://raw.githubusercontent.com/doreadoraord/BoranDoraEvmez/main/d.png",
+        "https://raw.githubusercontent.com/doreadoraord/BoranDoraEvmez/main/e.png",
+        "https://raw.githubusercontent.com/doreadoraord/BoranDoraEvmez/main/f.png",
+        "https://raw.githubusercontent.com/doreadoraord/BoranDoraEvmez/main/g.png"
+      ];
+      [...defaultCerts, ...certs].forEach(src => {
+        const img = document.createElement('img');
+        img.src = src;
+        img.alt = 'Sertifika';
+        gallery.appendChild(img);
+      });
+    }
+    function sendSuggestion() {
+      const input = document.getElementById('suggestionInput');
+      const msg = input.value.trim();
+      if (!msg) return;
+      let user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+      let suggestions = JSON.parse(localStorage.getItem('suggestions') || '[]');
+      suggestions.push({user: user.mail || 'Anonim', msg: msg});
+      localStorage.setItem('suggestions', JSON.stringify(suggestions));
+      document.getElementById('suggestionSuccess').style.display = 'block';
+      input.value = '';
+      setTimeout(()=>{document.getElementById('suggestionSuccess').style.display = 'none';}, 2000);
+    }
+    function showAdminMessages() {
+      const list = document.getElementById('adminMessagesList');
+      list.innerHTML = '';
+      let suggestions = JSON.parse(localStorage.getItem('suggestions') || '[]');
+      if (suggestions.length === 0) {
+        list.innerHTML = '<p>Hiç mesaj yok.</p>';
+      } else {
+        suggestions.forEach(s => {
+          const div = document.createElement('div');
+          div.style.marginBottom = '12px';
+          div.innerHTML = `<b data-tr="Gönderen" data-en="Sender" data-de="Absender" data-ru="Отправитель">Gönderen</b>: <span>${s.user}</span><br><b data-tr="Mesaj" data-en="Message" data-de="Nachricht" data-ru="Сообщение">Mesaj</b>: <span>${s.msg}</span>`;
+          list.appendChild(div);
+        });
+      }
+    }
+    function updateMenuForRole() {
+      if (localStorage.getItem('isAdmin') === 'true') {
+        document.getElementById('adminPanelBtn').style.display = '';
+        document.getElementById('adminMessagesBtn').style.display = '';
+        document.getElementById('suggestionBtn').style.display = 'none';
+        document.getElementById('adminCertUpload').style.display = '';
+      } else {
+        document.getElementById('adminPanelBtn').style.display = 'none';
+        document.getElementById('adminMessagesBtn').style.display = 'none';
+        document.getElementById('suggestionBtn').style.display = '';
+        document.getElementById('adminCertUpload').style.display = 'none';
+      }
+    }
+  </script>
+</body>
+</html>
